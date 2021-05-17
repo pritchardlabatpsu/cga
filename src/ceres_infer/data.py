@@ -288,6 +288,15 @@ class depmap_data:
         self.df_rnaseq = self.df_rnaseq.loc[:, dm_data.df_rnaseq.columns]
         self.df_crispr = self.df_crispr.loc[:, dm_data.df_crispr.columns]
         self.df_lineage = self.df_lineage.loc[:, dm_data.df_lineage.columns]
+        
+    def drop_pc9(self):
+        # Drop PC9 cell line in 19Q3 data
+        print('dropping PC9 in 19Q3...')
+        self.df_mut = self.df_mut.drop(['ACH-000030'])
+        self.df_cn = self.df_cn.drop(['ACH-000030'])
+        self.df_rnaseq = self.df_rnaseq.drop(['ACH-000030'])
+        self.df_crispr = self.df_crispr.drop(['ACH-000030'])
+        self.df_lineage = self.df_lineage.drop(['ACH-000030'])
 
     def printDataStats(self, outdir_sub='./'):
         # print out dataset datasets
@@ -492,6 +501,7 @@ def preprocessData(useGene_dependency, dir_out, dir_depmap = '../datasets/DepMap
         dm_data_ext.dir_datasets = ext_data['dir_datasets']
         dm_data_ext.dir_ceres_datasets = ext_data['dir_ceres_datasets']
         dm_data_ext.data_name = ext_data['data_name']
+        print(dm_data_ext.data_name)
         dm_data_ext.fname_gene_effect = ext_data['fname_gene_effect']
         dm_data_ext.fname_gene_dependency = ext_data['fname_gene_dependency']
         dm_data_ext.load_data(useGene_dependency)
@@ -507,6 +517,10 @@ def preprocessData(useGene_dependency, dir_out, dir_depmap = '../datasets/DepMap
         dm_data_match_ext = dm_data
         dm_data_match_ext.df_crispr = dm_data_match_ext.df_crispr.loc[:, ceres_feat_common]
         dm_data_ext.match_feats(dm_data_match_ext)
+        
+        # If the external data is PC9, we drop PC9 in 19Q3 (dm_data_match_ext)
+        if dm_data_ext.data_name == 'data_pc9':
+            dm_data_match_ext.drop_pc9()
 
         # print dataset stats
         dm_data_ext.printDataStats(dir_out)
